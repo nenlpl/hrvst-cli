@@ -19,13 +19,189 @@ npm install -g hrvst-cli
 
 ### Log in with your Harvest account
 
-To authenticate with Harvest's REST API, [client side OAuth2](https://help.getharvest.com/api-v2/authentication-api/authentication/authentication/#for-client-side-applications) is used. To initiate this, run:
+To authenticate with Harvest’s REST API, [client side OAuth2](https://help.getharvest.com/api-v2/authentication-api/authentication/authentication/#for-client-side-applications) is used. To initiate this, run:
 
 ```
 hrvst login
 ```
 
 You’ll be prompted to launch your browser and log in to Harvest to grant Harvest CLI access to your account.
+
+## Building from Source
+
+### Prerequisites — Install Bun
+
+Bun is required to build this project.
+
+**Linux:**
+
+```bash
+curl -fsSL https://bun.sh/install | bash
+```
+
+**Windows (PowerShell, run as your user — no admin needed):**
+
+```powershell
+powershell -c "irm bun.sh/install.ps1 | iex"
+```
+
+Restart your terminal after installation so `bun` is in your `PATH`.
+
+### Install dependencies
+
+```
+bun install
+```
+
+### Build the CLI
+
+```
+bun run build
+```
+
+This outputs `dist/cli.js`.
+
+### Build the MCP server
+
+```
+bun run build:mcp
+```
+
+This outputs `dist/mcp.js`.
+
+### Link the binaries globally
+
+Running `npm link` from the repo root registers `hrvst` and `hrvst-mcp` as system-wide commands, which lets you run them from any directory and makes MCP configuration simpler.
+
+```
+npm link
+```
+
+> **Windows note:** Run this in a terminal with standard user privileges. If you see a permissions error, open PowerShell as Administrator and run it once.
+
+### Log in
+
+After building, authenticate with your Harvest account:
+
+```
+hrvst login
+```
+
+## MCP Server
+
+The MCP server (`dist/mcp.js`) exposes Harvest time-tracking tools to AI assistants that support the [Model Context Protocol](https://modelcontextprotocol.io). After running `npm link`, the server is available as the `hrvst-mcp` command.
+
+The following tools are provided:
+
+| Tool | Description |
+|---|---|
+| `start_timer` | Start a time entry for a project/task |
+| `stop_timer` | Stop a running time entry |
+| `log_time` | Create a completed time entry for a given number of hours |
+| `get_running_timers` | List all currently running timers |
+| `list_time_entries` | List time entries with optional date range filter |
+| `list_project_assignments` | List projects and tasks assigned to you |
+| `list_aliases` | List saved project/task aliases |
+| `create_alias` | Save a short alias for a project/task pair |
+| `delete_alias` | Remove a saved alias |
+
+### ChatGPT
+
+Open the ChatGPT desktop app, go to **Settings → Connections**, and add a new MCP server. Alternatively, edit the config file directly:
+
+**macOS:** `~/Library/Application Support/ChatGPT/mcp_settings.json`  
+**Windows:** `%APPDATA%\ChatGPT\mcp_settings.json`
+
+```json
+{
+  "mcpServers": {
+    "harvest": {
+      "command": "hrvst-mcp"
+    }
+  }
+}
+```
+
+If you skipped the `npm link` step, use the full path instead:
+
+```json
+{
+  "mcpServers": {
+    "harvest": {
+      "command": "node",
+      "args": ["C:\\path\\to\\hrvst-cli\\dist\\mcp.js"]
+    }
+  }
+}
+```
+
+Restart ChatGPT after saving the config.
+
+### GitHub Copilot in VS Code
+
+Requires VS Code 1.99 or later with the GitHub Copilot extension installed.
+
+Create (or open) `.vscode/mcp.json` in your workspace root and add:
+
+```json
+{
+  "servers": {
+    "harvest": {
+      "type": "stdio",
+      "command": "hrvst-mcp"
+    }
+  }
+}
+```
+
+If you skipped `npm link`, provide the full path:
+
+```json
+{
+  "servers": {
+    "harvest": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["C:\\path\\to\\hrvst-cli\\dist\\mcp.js"]
+    }
+  }
+}
+```
+
+After saving, open the Copilot Chat panel, switch to **Agent** mode, and the Harvest tools will appear in the available tool list.
+
+> **Windows path tip:** Use forward slashes or escape backslashes in JSON — `C:/path/to/dist/mcp.js` and `C:\\path\\to\\dist\\mcp.js` are both valid.
+
+### Windows Copilot
+
+Open the Copilot app or panel and navigate to **Settings → Extensions → MCP Servers**. Add a new entry using the configuration below. If your version supports a config file, the path is typically:
+
+`%APPDATA%\Microsoft\Copilot\mcp_settings.json`
+
+```json
+{
+  "mcpServers": {
+    "harvest": {
+      "command": "hrvst-mcp"
+    }
+  }
+}
+```
+
+If you skipped `npm link`:
+
+```json
+{
+  "mcpServers": {
+    "harvest": {
+      "command": "node",
+      "args": ["C:\\path\\to\\hrvst-cli\\dist\\mcp.js"]
+    }
+  }
+}
+```
+
+Restart Copilot after saving to pick up the new server.
 
 ## CLI Command Reference
 

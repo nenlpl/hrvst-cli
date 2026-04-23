@@ -170,7 +170,7 @@ export async function getNotesFromEditor(): Promise<string> {
  *
  * @returns Array of project assignments
  */
-async function getProjectAssignments(page = 1): Promise<ProjectAssignment[]> {
+export async function getProjectAssignments(page = 1): Promise<ProjectAssignment[]> {
   const assignments: ProjectAssignment[] = [];
 
   const { data } = await httpRequest(

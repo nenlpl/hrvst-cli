@@ -25,10 +25,12 @@
   },
   "exports": "./dist/cli.js",
   "bin": {
-    "hrvst": "dist/cli.js"
+    "hrvst": "dist/cli.js",
+    "hrvst-mcp": "dist/mcp.js"
   },
   "scripts": {
     "build": "bun build src/cli.ts --minify --outdir ./dist --packages external --target node",
+    "build:mcp": "bun build src/mcp.ts --minify --outdir ./dist --packages external --target node",
     "format": "prettier --check .",
     "format:write": "prettier --write .",
     "lint": "eslint . --ext .ts",
@@ -39,6 +41,7 @@
     "watch": "bun run build --watch"
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
     "chalk": "^5.3.0",
     "cli-table3": "^0.6.5",
     "inquirer": "^11.0.2",
